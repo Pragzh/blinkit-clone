@@ -1,37 +1,20 @@
-// src/pages/OrderSuccess.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = "https://blinkit-clone-production.up.railway.app";
+import { useNavigate } from "react-router-dom";
 
 const OrderSuccess = () => {
   const [order, setOrder] = useState(null);
   const navigate = useNavigate();
-  const { orderId } = useParams();
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) {
+    const storedOrder = localStorage.getItem("latestOrder");
+
+    if (!storedOrder) {
       navigate("/");
       return;
     }
 
-    const fetchOrder = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/orders/${orderId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setOrder(res.data);
-      } catch (err) {
-        console.error(err);
-        alert("Failed to fetch order details");
-        navigate("/");
-      }
-    };
-
-    if (orderId) fetchOrder();
-  }, [orderId, navigate, token]);
+    setOrder(JSON.parse(storedOrder));
+  }, [navigate]);
 
   if (!order) return null;
 
@@ -39,10 +22,12 @@ const OrderSuccess = () => {
     <div className="min-h-screen bg-gray-50 flex justify-center items-center px-4">
       <div className="bg-white shadow-lg rounded-lg max-w-xl w-full p-6">
         <h1 className="text-2xl font-bold text-green-600 mb-4">
-          Order Placed Successfully
+          Order Placed Successfully 🎉
         </h1>
 
-        <p className="text-sm text-gray-500 mb-4">Thank you for your purchase!</p>
+        <p className="text-sm text-gray-500 mb-4">
+          Thank you for your purchase!
+        </p>
 
         <div className="space-y-2 text-sm">
           <p><strong>Order ID:</strong> {order.orderId}</p>
@@ -55,6 +40,7 @@ const OrderSuccess = () => {
         <hr className="my-4" />
 
         <h2 className="font-semibold mb-2">Items Purchased</h2>
+
         <div className="space-y-2">
           {order.items.map((item, index) => (
             <div key={index} className="flex justify-between border-b pb-1 text-sm">
@@ -62,6 +48,12 @@ const OrderSuccess = () => {
               <span>₹{item.price * item.quantity}</span>
             </div>
           ))}
+        </div>
+
+        <div className="text-sm text-gray-600 mt-4">
+          <strong>Delivered to:</strong><br />
+          {order.address.house}, {order.address.area},<br />
+          {order.address.city} - {order.address.pincode}
         </div>
 
         <button
