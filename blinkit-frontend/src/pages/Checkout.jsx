@@ -92,7 +92,7 @@ const Checkout = () => {
           localStorage.setItem("latestOrder", JSON.stringify(latestOrder));
 
           clearCart();
-          navigate(`/order-success/${saveRes.data.orderId}`);
+           navigate(`/order-success/${createdOrder._id}`);
         },
         modal: { ondismiss: () => alert("Payment cancelled") },
       };
