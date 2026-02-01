@@ -10,14 +10,18 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ✅ Use state for user
+  // ✅ Safe state for user
   const [user, setUser] = useState(null);
 
   // Load user from localStorage safely
   useEffect(() => {
     try {
-      const savedUser = JSON.parse(localStorage.getItem("user") || "null");
-      setUser(savedUser);
+      const saved = localStorage.getItem("user");
+      if (saved && saved !== "undefined") {
+        setUser(JSON.parse(saved));
+      } else {
+        setUser(null);
+      }
     } catch (err) {
       console.error("Failed to parse user from localStorage", err);
       setUser(null);
@@ -39,8 +43,8 @@ const Navbar = () => {
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("cart"); // optional
-    setUser(null); // ✅ Update state to null
+    localStorage.removeItem("cart");
+    setUser(null);
     setOpen(false);
     navigate("/");
   };
@@ -48,19 +52,16 @@ const Navbar = () => {
   return (
     <div className="sticky top-0 z-50 bg-white shadow">
       <div className="max-w-7xl mx-auto flex items-center gap-4 px-4 py-3">
-        {/* Logo */}
         <Link to="/" className="text-3xl font-extrabold text-green-600">
           blinkit
         </Link>
 
-        {/* Search */}
         <input
           type="text"
           placeholder="Search for products..."
           className="flex-1 px-4 py-2 bg-gray-100 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
         />
 
-        {/* Cart */}
         <Link
           to="/cart"
           className="relative bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold"
@@ -73,7 +74,6 @@ const Navbar = () => {
           )}
         </Link>
 
-        {/* Login / Account Dropdown */}
         {user ? (
           <div className="relative" ref={dropdownRef}>
             <button
