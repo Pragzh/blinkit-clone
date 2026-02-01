@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 const OrderSuccess = () => {
+  const { orderId } = useParams(); // from URL
   const [order, setOrder] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedOrder = localStorage.getItem("latestOrder");
-
-    if (!storedOrder) {
+    if (!orderId) {
       navigate("/");
       return;
     }
 
-    setOrder(JSON.parse(storedOrder));
-  }, [navigate]);
+    const fetchOrder = async () => {
+      try {
+        const res = await axios.get(`/api/orders/${orderId}`);
+        setOrder(res.data);
+      } catch (error) {
+        console.error("Failed to fetch order", error);
+        navigate("/");
+      }
+    };
+
+    fetchOrder();
+  }, [orderId, navigate]);
 
   if (!order) return null;
 
@@ -30,11 +40,14 @@ const OrderSuccess = () => {
         </p>
 
         <div className="space-y-2 text-sm">
-          <p><strong>Order ID:</strong> {order.orderId}</p>
+          <p><strong>Order ID:</strong> {order._id}</p>
           <p><strong>Payment ID:</strong> {order.paymentId}</p>
           <p><strong>Status:</strong> {order.status}</p>
-          <p><strong>Total Amount:</strong> ₹{order.total}</p>
-          <p><strong>Date:</strong> {new Date(order.date).toLocaleString()}</p>
+          <p><strong>Total Amount:</strong> ₹{order.totalAmount}</p>
+          <p>
+            <strong>Date:</strong>{" "}
+            {new Date(order.createdAt).toLocaleString()}
+          </p>
         </div>
 
         <hr className="my-4" />
@@ -60,10 +73,10 @@ const OrderSuccess = () => {
         </div>
 
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/my-orders")}
           className="mt-6 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
         >
-          Continue Shopping
+          View My Orders
         </button>
       </div>
     </div>
