@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = "https://blinkit-clone-production.up.railway.app";
+
 const OTPLogin = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // Step 1: phone, Step 2: OTP
@@ -16,7 +18,7 @@ const OTPLogin = () => {
     if (!phone) return setMessage("Please enter phone number");
     setLoading(true);
     try {
-      const res = await axios.post("https://blinkit-clone-production.up.railway.app/api/auth/send-otp", { phone });
+      const res = await axios.post(`${BASE_URL}/api/auth/send-otp`, { phone });
       setMessage(res.data.message);
       alert(`Your OTP is: ${res.data.otp}`); // For dev/testing
       setStep(2);
@@ -32,15 +34,18 @@ const OTPLogin = () => {
     if (!otp) return setMessage("Please enter OTP");
     setLoading(true);
     try {
-      const res = await axios.post("https://blinkit-clone-production.up.railway.app/api/auth/send-otp", { phone, otp });
+      // ✅ Call the correct endpoint for verification
+      const res = await axios.post(`${BASE_URL}/api/auth/verify-otp`, { phone, otp });
       const { token, user } = res.data;
 
-      // Save token & user info
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setMessage("Login successful!");
-      navigate("/"); // redirect to home
+      if (token && user) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        setMessage("Login successful!");
+        navigate("/"); // redirect to home
+      } else {
+        setMessage("OTP verification failed");
+      }
     } catch (err) {
       console.error(err);
       setMessage(err.response?.data?.message || "OTP verification failed");
