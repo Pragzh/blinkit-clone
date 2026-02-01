@@ -12,7 +12,7 @@ const Login = () => {
   const sendOTP = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/send-otp",
+        "https://blinkit-clone-production.up.railway.app/api/auth/send-otp",
         { phone }
       );
 
