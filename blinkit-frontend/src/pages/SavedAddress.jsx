@@ -6,8 +6,16 @@ const BASE_URL = "https://blinkit-clone-production.up.railway.app";
 
 const SavedAddress = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  // Safe parsing of user
+  let token = localStorage.getItem("token");
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch (err) {
+    console.error("Failed to parse user", err);
+    user = null;
+  }
 
   const [addresses, setAddresses] = useState([]);
   const [newAddress, setNewAddress] = useState({
@@ -21,7 +29,7 @@ const SavedAddress = () => {
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!token || !user) navigate("/login");
+    if (!token || !user) navigate("/otp-login");
   }, [token, user, navigate]);
 
   // Fetch saved addresses safely
@@ -49,7 +57,6 @@ const SavedAddress = () => {
     setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
   };
 
-  // Save new address
   const handleSave = async () => {
     const { name, house, area, city, pincode } = newAddress;
 
@@ -84,14 +91,10 @@ const SavedAddress = () => {
     }
   };
 
-  // Remove address only from UI (no backend call)
   const handleRemoveFromUI = (id) => {
     const updatedAddresses = addresses.filter(a => a._id !== id);
     setAddresses(updatedAddresses);
-
-    // Update localStorage to reflect UI removal
     localStorage.setItem("savedAddressesUI", JSON.stringify(updatedAddresses));
-
     alert("Address removed from UI");
   };
 
@@ -103,48 +106,14 @@ const SavedAddress = () => {
 
       {/* Address Form */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <input
-          name="name"
-          value={newAddress.name}
-          onChange={handleChange}
-          placeholder="Full Name"
-          className="border p-3 rounded"
-        />
-        <input
-          name="house"
-          value={newAddress.house}
-          onChange={handleChange}
-          placeholder="House / Flat No."
-          className="border p-3 rounded"
-        />
-        <input
-          name="area"
-          value={newAddress.area}
-          onChange={handleChange}
-          placeholder="Area / Street"
-          className="border p-3 rounded"
-        />
-        <input
-          name="city"
-          value={newAddress.city}
-          onChange={handleChange}
-          placeholder="City"
-          className="border p-3 rounded"
-        />
-        <input
-          name="pincode"
-          value={newAddress.pincode}
-          onChange={handleChange}
-          placeholder="Pincode"
-          className="border p-3 rounded"
-        />
+        <input name="name" value={newAddress.name} onChange={handleChange} placeholder="Full Name" className="border p-3 rounded" />
+        <input name="house" value={newAddress.house} onChange={handleChange} placeholder="House / Flat No." className="border p-3 rounded" />
+        <input name="area" value={newAddress.area} onChange={handleChange} placeholder="Area / Street" className="border p-3 rounded" />
+        <input name="city" value={newAddress.city} onChange={handleChange} placeholder="City" className="border p-3 rounded" />
+        <input name="pincode" value={newAddress.pincode} onChange={handleChange} placeholder="Pincode" className="border p-3 rounded" />
       </div>
 
-      <button
-        onClick={handleSave}
-        disabled={loading}
-        className="mb-6 bg-green-600 text-white px-6 py-3 rounded font-semibold"
-      >
+      <button onClick={handleSave} disabled={loading} className="mb-6 bg-green-600 text-white px-6 py-3 rounded font-semibold">
         {loading ? "Saving..." : "Save Address"}
       </button>
 
@@ -154,17 +123,14 @@ const SavedAddress = () => {
         <p>No addresses saved yet.</p>
       ) : (
         <ul className="space-y-3">
-          {addresses.map((a) =>
+          {addresses.map(a =>
             a ? (
               <li key={a._id} className="border p-3 rounded flex justify-between items-center">
                 <div>
                   <p><strong>{a.name}</strong></p>
                   <p>{a.house}, {a.area}, {a.city} - {a.pincode}</p>
                 </div>
-                <button
-                  onClick={() => handleRemoveFromUI(a._id)}
-                  className="bg-red-600 text-white px-4 py-2 rounded"
-                >
+                <button onClick={() => handleRemoveFromUI(a._id)} className="bg-red-600 text-white px-4 py-2 rounded">
                   Remove
                 </button>
               </li>
