@@ -13,10 +13,15 @@ const Navbar = () => {
   // ✅ Use state for user
   const [user, setUser] = useState(null);
 
-  // Load user from localStorage when component mounts
+  // Load user from localStorage safely
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
-    if (savedUser) setUser(savedUser);
+    try {
+      const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+      setUser(savedUser);
+    } catch (err) {
+      console.error("Failed to parse user from localStorage", err);
+      setUser(null);
+    }
   }, []);
 
   // Close dropdown if clicked outside
