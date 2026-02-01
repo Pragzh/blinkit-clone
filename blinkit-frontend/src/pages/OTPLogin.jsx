@@ -16,7 +16,7 @@ const OTPLogin = () => {
     if (!phone) return setMessage("Please enter phone number");
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/send-otp", { phone });
+      const res = await axios.post("https://blinkit-clone-production.up.railway.app/api/auth/send-otp", { phone });
       setMessage(res.data.message);
       alert(`Your OTP is: ${res.data.otp}`); // For dev/testing
       setStep(2);
