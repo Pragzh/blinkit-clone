@@ -4,7 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://blinkit-clone-production.up.railway.app";
 
 const Checkout = () => {
   const { cart, clearCart } = useCart();
