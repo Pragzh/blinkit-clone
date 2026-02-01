@@ -1,3 +1,4 @@
+// src/pages/Checkout.jsx
 import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
@@ -15,26 +16,22 @@ const Checkout = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Safe token & user parsing
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
-    setToken(savedToken);
-    setUser(savedUser ? JSON.parse(savedUser) : null);
+    setToken(localStorage.getItem("token"));
+    setUser(JSON.parse(localStorage.getItem("user")));
   }, []);
 
-  // Load saved addresses
   useEffect(() => {
     const savedAddressesUI =
       JSON.parse(localStorage.getItem("savedAddressesUI")) || [];
     setAddresses(savedAddressesUI);
-    if (savedAddressesUI.length > 0) setSelectedAddress(savedAddressesUI[0]);
+    if (savedAddressesUI.length > 0) {
+      setSelectedAddress(savedAddressesUI[0]);
+    }
   }, []);
 
-  if (!token || !user)
-    return <p className="p-4">Please login first</p>;
-  if (!cart || cart.length === 0)
-    return <p className="p-4">Your cart is empty</p>;
+  if (!token || !user) return <p className="p-4">Please login first</p>;
+  if (!cart || cart.length === 0) return <p className="p-4">Your cart is empty</p>;
 
   const totalPrice = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -64,8 +61,12 @@ const Checkout = () => {
         order_id: orderData.id,
         name: "Blinkit Clone",
         description: "Order Payment",
-        prefill: { contact: user?.phone || "" },
-        handler: async (response) => {
+
+        prefill: {
+          contact: user?.phone || "",
+        },
+
+        handler: async function (response) {
           const saveRes = await axios.post(
             `${BASE_URL}/api/orders/checkout`,
             {
@@ -77,9 +78,13 @@ const Checkout = () => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
+          // ✅ Save latest order ID for OrderSuccess page
+          localStorage.setItem("latestOrderId", saveRes.data.orderId);
+
           clearCart();
           navigate(`/order-success/${saveRes.data.orderId}`);
         },
+
         modal: { ondismiss: () => alert("Payment cancelled") },
       };
 
@@ -96,16 +101,14 @@ const Checkout = () => {
     <div className="max-w-3xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Checkout</h2>
 
-      {/* Address */}
+      {/* Address Selection */}
       <div className="mb-4">
         <h3 className="font-semibold mb-2">Select Delivery Address</h3>
         <select
           className="border p-2 rounded w-full"
           value={selectedAddress?._id || ""}
           onChange={(e) =>
-            setSelectedAddress(
-              addresses.find((a) => a._id === e.target.value)
-            )
+            setSelectedAddress(addresses.find(a => a._id === e.target.value))
           }
         >
           {addresses.map((a) => (
@@ -121,7 +124,7 @@ const Checkout = () => {
         <h3 className="font-semibold mb-2">Order Summary</h3>
         {cart.map((item) => (
           <div
-            key={item.id || item._id}
+            key={item.id}
             className="flex items-center justify-between py-2 border-b"
           >
             <div className="flex items-center gap-3">
@@ -137,12 +140,9 @@ const Checkout = () => {
                 </p>
               </div>
             </div>
-            <span className="font-semibold">
-              ₹{item.price * item.quantity}
-            </span>
+            <span className="font-semibold">₹{item.price * item.quantity}</span>
           </div>
         ))}
-
         <div className="flex justify-between font-bold mt-3">
           <span>Total</span>
           <span>₹{totalPrice}</span>
