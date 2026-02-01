@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://blinkit-clone-production.up.railway.app";
 
 const SavedAddress = () => {
   const navigate = useNavigate();
