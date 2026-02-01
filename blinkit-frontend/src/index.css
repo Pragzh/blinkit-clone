@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scroll */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Optional: custom scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 3px;
+}
+
+./* Horizontal scroll scrollbar */
+.category-container {
+  -ms-overflow-style: auto; /* IE 10+ */
+  scrollbar-width: thin; /* Firefox */
+}
+
+.category-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.category-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 3px;
+}
+
+.category-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
