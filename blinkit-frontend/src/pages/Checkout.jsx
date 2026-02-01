@@ -46,6 +46,7 @@ const Checkout = () => {
 
     setLoading(true);
     try {
+      // Create order on backend
       const paymentRes = await axios.post(
         `${BASE_URL}/api/payment/create-order`,
         { amount: totalPrice },
@@ -61,12 +62,11 @@ const Checkout = () => {
         order_id: orderData.id,
         name: "Blinkit Clone",
         description: "Order Payment",
-
         prefill: {
           contact: user?.phone || "",
         },
-
         handler: async function (response) {
+          // Save order after successful payment
           const saveRes = await axios.post(
             `${BASE_URL}/api/orders/checkout`,
             {
@@ -78,13 +78,22 @@ const Checkout = () => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
-          // ✅ Save latest order ID for OrderSuccess page
-          localStorage.setItem("latestOrderId", saveRes.data.orderId);
+          // ✅ Save full order object for OrderSuccess page
+          const latestOrder = {
+            orderId: saveRes.data.orderId,
+            paymentId: response.razorpay_payment_id,
+            status: saveRes.data.status || "Pending",
+            total: totalPrice,
+            date: new Date().toISOString(),
+            items: cart,
+            address: selectedAddress,
+          };
+
+          localStorage.setItem("latestOrder", JSON.stringify(latestOrder));
 
           clearCart();
           navigate(`/order-success/${saveRes.data.orderId}`);
         },
-
         modal: { ondismiss: () => alert("Payment cancelled") },
       };
 
