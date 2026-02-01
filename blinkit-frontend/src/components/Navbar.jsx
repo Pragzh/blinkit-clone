@@ -15,7 +15,7 @@ const Navbar = () => {
 
   // Load user from localStorage when component mounts
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("user"));
+    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
     if (savedUser) setUser(savedUser);
   }, []);
 
