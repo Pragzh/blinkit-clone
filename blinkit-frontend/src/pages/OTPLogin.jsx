@@ -32,7 +32,7 @@ const OTPLogin = () => {
     if (!otp) return setMessage("Please enter OTP");
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/verify-otp", { phone, otp });
+      const res = await axios.post("https://blinkit-clone-production.up.railway.app/api/auth/send-otp", { phone, otp });
       const { token, user } = res.data;
 
       // Save token & user info
